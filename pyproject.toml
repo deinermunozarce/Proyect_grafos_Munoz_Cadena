@@ -1,0 +1,17 @@
+[project]
+name = "proyecto-grafos"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+authors = [
+    { name = "Deiner Hernan Muñoz Arce", email = "deiner.munoz@correounivalle.edu.co" }
+]
+requires-python = ">=3.10"
+dependencies = []
+
+[project.scripts]
+proyecto-grafos = "proyecto_grafos:main"
+
+[build-system]
+requires = ["uv_build>=0.13.7,<0.14.0"]
+build-backend = "uv_build"
