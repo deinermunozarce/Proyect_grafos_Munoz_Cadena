@@ -1,4 +1,5 @@
 from proyecto_grafos.graph_direct import Direct_Graph
+from proyecto_grafos.graph_reader import load_graph_from_file
 #---------------------PUNTO 3----------------------------------------
 class Vertex:
     def __init__(self, name):
@@ -7,6 +8,7 @@ class Vertex:
 
 
 class Edge:
+   
     def __init__(self, source, target, weight=1):
         self.source = source   # objeto Vertice
         self.target = target # objeto Vertice
@@ -14,6 +16,7 @@ class Edge:
 
 
 class Undirected_graph:
+    
     def __init__(self):
         self.vertexs = {}     # nombre -> objeto Vertice
         self.edges = []      # lista de objetos arista
@@ -28,7 +31,8 @@ class Undirected_graph:
         a = self.add_vertex(name_a)
         b = self.add_vertex(name_b)
 
-        self.Edges.append(Edge(a, b, weight))
+        # CORRECCIÓN 4: era "self.Edges" (mayúscula). El atributo se llama "self.edges".
+        self.edges.append(Edge(a, b, weight))
 
         # No dirigido: a<-->b
         a.partners.append(b)
@@ -88,37 +92,5 @@ class Undirected_graph:
             C = self.count_components()    # cantidad de pedazos
                          
             # Sin ciclos solo puede haber V - C aristas
-            return E > V - C      
-            
+            return E > V - C
         
-#--------------------PUNTO 5------------------------------------------------------------
-
-"""
-def load_grafo(ruta, grafo):
-    archivo = open(ruta, "r")
-    text = archivo.read()          # lee todo como texto
-    archivo.close()
-
-    lines = text.split("\n")      # separa el texto en líneas
-
-    for i in range(len(lines)):
-        line = lines[i]
-
-
-        # Separar la línea por comas y va recorriendo carácter por carácter
-        parts = []
-        actual = ""
-        for caracter in line:
-            if caracter == ",":
-                parts.append(actual)
-                actual = ""
-            else:
-                actual = actual + caracter
-        parts.append(actual)       # agrega el último pedazo
-
-        source = parts[0]
-        target = parts[1]
-        weight = int(parts[2])
-
-        grafo.add_edge(source, target, weight)
-"""
