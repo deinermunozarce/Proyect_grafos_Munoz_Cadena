@@ -1,115 +1,166 @@
+import io
+from contextlib import redirect_stdout
+
 from proyecto_grafos import Direct_Graph, load_graph_from_file
 from proyecto_grafos import Undirected_graph
 
-
-def check(descripcion, obtenido, esperado):
-    estado = "OK " if obtenido == esperado else "FALLO"
-    print(f"  [{estado}] {descripcion}: obtenido={obtenido!r}, esperado={esperado!r}")
-    return obtenido == esperado
+failures = []   # aquí se guardan las pruebas fallidas (no se imprime nada si pasan)
 
 
-def prueba_punto_3():
-    print("\n=== PUNTO 3: Grafo no dirigido (listas de adyacencia) ===")
+def silent(function):
+    """Ejecuta una función ocultando lo que imprime (para que las pruebas no ensucien la salida)."""
+    with redirect_stdout(io.StringIO()):
+        return function()
+
+
+def check(description, obtained, expected):
+    ok = obtained == expected
+    if not ok:
+        failures.append(f"{description}: obtenido={obtained!r}, esperado={expected!r}")
+    return ok
+
+
+def test_point_3():
     g = Undirected_graph()
     g.add_edge("A", "B")
     g.add_edge("B", "C")
     g.add_edge("D", "E", 5)
-    g.show()
-    ok = check("n.º de vértices", len(g.vertexs), 5)
-    ok &= check("n.º de aristas", len(g.edges), 3)
-    ok &= check("vecinos de B", [v.name for v in g.vertexs["B"].partners], ["A", "C"])
-    return ok
+    check("P3 vértices", len(g.vertexs), 5)
+    check("P3 aristas", len(g.edges), 3)
+    check("P3 vecinos de B", [v.name for v in g.vertexs["B"].partners], ["A", "C"])
 
 
-def prueba_punto_4():
-    print("\n=== PUNTO 4: Grafo dirigido (matriz de adyacencia) ===")
+def test_point_4():
     g = Direct_Graph()
     g.add_edge("A", "B", 3)
     g.add_edge("B", "C", 0)      # peso 0 sigue siendo un arco válido
     g.add_edge("C", "A", 4)
-    print(g)
-    ok = check("A->B existe", g.has_edge("A", "B"), True)
-    ok &= check("B->A existe (dirigido)", g.has_edge("B", "A"), False)
-    ok &= check("peso B->C (0 válido)", g.get_weight("B", "C"), 0)
-    ok &= check("vecinos salientes de A", g.out_neighbors("A"), ["B"])
-    ok &= check("vecinos entrantes de A", g.in_neighbors("A"), ["C"])
-    ok &= check("grado de salida de C", g.out_degree("C"), 1)
+    check("P4 A->B existe", g.has_edge("A", "B"), True)
+    check("P4 B->A no existe", g.has_edge("B", "A"), False)
+    check("P4 peso B->C", g.get_weight("B", "C"), 0)
+    check("P4 salientes de A", g.out_neighbors("A"), ["B"])
+    check("P4 entrantes de A", g.in_neighbors("A"), ["C"])
     g.remove_edge("A", "B")
-    ok &= check("A->B tras remove_edge", g.has_edge("A", "B"), False)
-    ok &= check("arcos restantes", g.edges(), [("B", "C", 0), ("C", "A", 4)])
-    return ok
+    check("P4 tras remove_edge", g.has_edge("A", "B"), False)
+    check("P4 arcos restantes", g.edges(), [("B", "C", 0), ("C", "A", 4)])
 
 
-def prueba_punto_5():
-    print("\n=== PUNTO 5: Lectura de grafo desde archivo ===")
+def test_point_5():
     g = load_graph_from_file("datos_grafo.txt", Direct_Graph())
-    print(g)
-    ok = check("vértices", g.vertices, ["A", "B", "C", "D", "E"])
-    ok &= check("peso A->B (entero)", g.get_weight("A", "B"), 3)
-    ok &= check("peso B->C (decimal)", g.get_weight("B", "C"), 2.5)
-    ok &= check("peso C->A (cero)", g.get_weight("C", "A"), 0)
-    ok &= check("n.º de arcos", len(g.edges()), 5)
-    return ok
+    check("P5 vértices", g.vertices, ["A", "B", "C", "D", "E"])
+    check("P5 peso entero", g.get_weight("A", "B"), 3)
+    check("P5 peso decimal", g.get_weight("B", "C"), 2.5)
+    check("P5 peso cero", g.get_weight("C", "A"), 0)
+    check("P5 n.º de arcos", len(g.edges()), 5)
 
 
-def prueba_punto_6():
-    print("\n=== PUNTO 6: Conexidad ===")
-    vacio = Undirected_graph()
-    ok = check("grafo vacío es conexo", vacio.related(), True)
+def test_point_6():
+    empty = Undirected_graph()
+    check("P6 vacío es conexo", silent(empty.is_connected), True)
 
-    conexo = Undirected_graph()
-    conexo.add_edge("A", "B")
-    conexo.add_edge("B", "C")
-    ok &= check("A-B-C es conexo", conexo.related(), True)
+    connected = Undirected_graph()
+    connected.add_edge("A", "B")
+    connected.add_edge("B", "C")
+    check("P6 A-B-C conexo", silent(connected.is_connected), True)
 
-    no_conexo = Undirected_graph()
-    no_conexo.add_edge("A", "B")
-    no_conexo.add_edge("C", "D")
-    ok &= check("A-B y C-D NO es conexo", no_conexo.related(), False)
-    return ok
+    disconnected = Undirected_graph()
+    disconnected.add_edge("A", "B")
+    disconnected.add_edge("C", "D")
+    check("P6 A-B y C-D no conexo", silent(disconnected.is_connected), False)
 
 
-def prueba_punto_7():
-    print("\n=== PUNTO 7: Componentes y ciclos ===")
-    arbol = Undirected_graph()
-    arbol.add_edge("A", "B")
-    arbol.add_edge("B", "C")
-    ok = check("componentes del árbol", arbol.count_components(), 1)
-    ok &= check("árbol tiene ciclos", arbol.tiene_ciclos(), False)
+def test_point_7():
+    path = Undirected_graph()
+    path.add_edge("A", "B")
+    path.add_edge("B", "C")
+    check("P7 componentes del camino", path.count_components(), 1)
+    check("P7 camino sin ciclos", silent(path.has_cycles), False)
 
-    ciclo = Undirected_graph()
-    ciclo.add_edge("A", "B")
-    ciclo.add_edge("B", "C")
-    ciclo.add_edge("C", "A")
-    ok &= check("triángulo tiene ciclos", ciclo.tiene_ciclos(), True)
+    triangle = Undirected_graph()
+    triangle.add_edge("A", "B")
+    triangle.add_edge("B", "C")
+    triangle.add_edge("C", "A")
+    check("P7 triángulo con ciclos", silent(triangle.has_cycles), True)
 
-    dos = Undirected_graph()
-    dos.add_edge("A", "B")
-    dos.add_edge("C", "D")
-    dos.add_vertex("E")
-    ok &= check("componentes (A-B, C-D, E)", dos.count_components(), 3)
-    ok &= check("bosque sin ciclos", dos.tiene_ciclos(), False)
+    two = Undirected_graph()
+    two.add_edge("A", "B")
+    two.add_edge("C", "D")
+    two.add_vertex("E")
+    check("P7 componentes (A-B, C-D, E)", two.count_components(), 3)
+    check("P7 bosque sin ciclos", silent(two.has_cycles), False)
 
-    mixto = Undirected_graph()
-    mixto.add_edge("A", "B")
-    mixto.add_edge("B", "C")
-    mixto.add_edge("C", "A")
-    mixto.add_edge("X", "Y")
-    ok &= check("componentes (triángulo + X-Y)", mixto.count_components(), 2)
-    ok &= check("mixto tiene ciclos", mixto.tiene_ciclos(), True)
-    return ok
+
+def test_point_8():
+    tree = Undirected_graph()
+    tree.add_edge("A", "B")
+    tree.add_edge("A", "C")
+    tree.add_edge("C", "D")
+    check("P8 árbol es árbol", silent(tree.is_tree), True)
+
+    triangle = Undirected_graph()
+    triangle.add_edge("A", "B")
+    triangle.add_edge("B", "C")
+    triangle.add_edge("C", "A")
+    check("P8 triángulo no es árbol (ciclo)", silent(triangle.is_tree), False)
+
+    two = Undirected_graph()
+    two.add_edge("A", "B")
+    two.add_edge("C", "D")
+    check("P8 dos pedazos no es árbol (no conexo)", silent(two.is_tree), False)
+
+    single = Undirected_graph()
+    single.add_vertex("A")
+    check("P8 un vértice solo es árbol", silent(single.is_tree), True)
+
+    check("P8 grafo vacío no es árbol", silent(Undirected_graph().is_tree), False)
+
+
+def test_point_9():
+    two = Undirected_graph()
+    two.add_edge("A", "B")
+    two.add_edge("C", "D")
+    two.add_vertex("E")
+    check("P9 bosque (A-B, C-D, E)", silent(two.is_forest), True)
+
+    tree = Undirected_graph()
+    tree.add_edge("A", "B")
+    tree.add_edge("B", "C")
+    check("P9 un árbol también es bosque", silent(tree.is_forest), True)
+
+    mixed = Undirected_graph()
+    mixed.add_edge("A", "B")
+    mixed.add_edge("B", "C")
+    mixed.add_edge("C", "A")
+    mixed.add_edge("X", "Y")
+    check("P9 triángulo + X-Y no es bosque", silent(mixed.is_forest), False)
+
+
+def demo():
+    """Lo único que se imprime de verdad: el formato pedido por el enunciado."""
+    for file_name in ["datos_grafo.txt", "arbol.txt", "bosque.txt"]:
+        print(f"--- {file_name} ---")
+        g = load_graph_from_file(file_name, Undirected_graph())
+        g.is_connected()
+        g.has_cycles()
+        g.is_tree()
+        g.is_forest()
 
 
 def main():
-    pruebas = [prueba_punto_3, prueba_punto_4, prueba_punto_5,
-               prueba_punto_6, prueba_punto_7]
-    resultados = [p() for p in pruebas]
-    print("\n" + "=" * 50)
-    if all(resultados):
-        print("TODAS LAS PRUEBAS (puntos 3 a 7) PASARON")
+    tests = [test_point_3, test_point_4, test_point_5,
+             test_point_6, test_point_7, test_point_8, test_point_9]
+    for test in tests:
+        test()
+
+    demo()
+
+    print()
+    if not failures:
+        print("Pruebas (puntos 3 a 9): TODAS PASARON")
     else:
-        print("HAY PRUEBAS FALLIDAS:",
-              [i + 3 for i, r in enumerate(resultados) if not r])
+        print("Pruebas fallidas:")
+        for failure in failures:
+            print("  -", failure)
 
 
 if __name__ == "__main__":

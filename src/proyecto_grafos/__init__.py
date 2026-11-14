@@ -6,7 +6,6 @@ class Vertex:
         self.name = name
         self.partners = []      # lista de objetos Vertice
 
-
 class Edge:
    
     def __init__(self, source, target, weight=1):
@@ -14,14 +13,13 @@ class Edge:
         self.target = target # objeto Vertice
         self.weight = weight
 
-
 class Undirected_graph:
-    
-    def __init__(self):
-        self.vertexs = {}     # nombre -> objeto Vertice
-        self.edges = []      # lista de objetos arista
 
-    def add_vertex(self, name ):
+    def __init__(self):
+        self.vertexs = {}     # nombre -> objeto Vertex
+        self.edges = []       # lista de objetos Edge
+
+    def add_vertex(self, name):
         # Si el vértice no existe todavía, lo creamos
         if name not in self.vertexs:
             self.vertexs[name] = Vertex(name)
@@ -30,67 +28,80 @@ class Undirected_graph:
     def add_edge(self, name_a, name_b, weight=1):
         a = self.add_vertex(name_a)
         b = self.add_vertex(name_b)
-
-        # CORRECCIÓN 4: era "self.Edges" (mayúscula). El atributo se llama "self.edges".
         self.edges.append(Edge(a, b, weight))
-
         # No dirigido: a<-->b
         a.partners.append(b)
         b.partners.append(a)
 
     def show(self):
-        for name, Vertex in self.vertexs.items():
-            nombres_partners = [v.name for v in Vertex.partners]
-            print(f"{name} -> {nombres_partners}")
-            
-            
-#------------------------PUNTO 6-------------------------------------------------------------
-    def related(self):
-            if len(self.vertexs) == 0:        # grafo vacío
-                return True
-    
-            #  Escoger un vértice cualquiera (el primero)
-            start = list(self.vertexs.values())[0]
-    
-            #  Recorrer desde ahí
-            visited = []
-            pila = [start]
-    
-            while len(pila) > 0:
-                actual = pila.pop()
-                if actual not in visited:
-                    visited.append(actual)
-                    for partner in actual.partners:
-                        pila.append(partner)
-    
-            #  cuenta y conprueba si estan todos
-            return len(visited) == len(self.vertexs) 
-        
-#-------------------------PUNTO 7--------------------------------------------------------   
+        # CORRECCIÓN: la variable "Vertex" tapaba la clase Vertex; ahora es "vertex"
+        for name, vertex in self.vertexs.items():
+            partner_names = [v.name for v in vertex.partners]
+            print(f"{name} -> {partner_names}")
+
+    # ------------------------ Funciones auxiliares (NO imprimen) ------------------------
+
     def count_components(self):
-            visited = []
-            components = 0
-    
-            for start in self.vertexs.values():
-                if start not in visited:
-                    components = components + 1      # encontramos un pedazo nuevo
-    
-                    # Recorrido normal (igual que en es_conexo)
-                    pila = [start]
-                    while len(pila) > 0:
-                        actual = pila.pop()
-                        if actual not in visited:
-                            visited.append(actual)
-                            for partner in actual.partners:
-                                pila.append(partner)
-    
-            return components
-        
-    def tiene_ciclos(self):
-            V = len(self.vertexs)           # cantidad de vértices
-            E = len(self.edges)            # cantidad de aristas
-            C = self.count_components()    # cantidad de pedazos
-                         
-            # Sin ciclos solo puede haber V - C aristas
-            return E > V - C
-        
+        """Cuenta las componentes conexas (pedazos) del grafo."""
+        visited = set()   # CORRECCIÓN: set en vez de lista (búsqueda más rápida)
+        components = 0
+
+        for start in self.vertexs.values():
+            if start not in visited:
+                components = components + 1      # encontramos un pedazo nuevo
+
+                # Recorrido en profundidad (DFS) con pila
+                stack = [start]
+                while len(stack) > 0:
+                    current = stack.pop()
+                    if current not in visited:
+                        visited.add(current)
+                        for partner in current.partners:
+                            stack.append(partner)
+
+        return components
+
+    def _connected(self):
+        # Un grafo es conexo si tiene a lo sumo 1 componente (el vacío cuenta como conexo)
+        return self.count_components() <= 1
+
+    def _has_cycles(self):
+        V = len(self.vertexs)           # cantidad de vértices
+        E = len(self.edges)             # cantidad de aristas
+        C = self.count_components()     # cantidad de componentes
+        # Sin ciclos solo puede haber V - C aristas; si hay más, hay un ciclo
+        return E > V - C
+
+    # ------------------------ PUNTO 6 ------------------------
+
+    def is_connected(self):
+        # CORRECCIÓN: antes se llamaba "related" y no imprimía
+        result = self._connected()
+        print(f"is_connected: {result}")
+        return result
+
+    # ------------------------ PUNTO 7 ------------------------
+
+    def has_cycles(self):
+        # CORRECCIÓN: antes se llamaba "tiene_ciclos" y no imprimía
+        result = self._has_cycles()
+        print(f"has_cycles: {result}")
+        return result
+
+    # ------------------------ PUNTO 8 ------------------------
+
+    def is_tree(self):
+        # Árbol = conexo + sin ciclos.
+        # Se exige al menos un vértice: por convención el grafo vacío no es un árbol.
+        result = len(self.vertexs) > 0 and self._connected() and not self._has_cycles()
+        print(f"is_tree: {result}")
+        return result
+
+    # ------------------------ PUNTO 9 ------------------------
+
+    def is_forest(self):
+        # Bosque = sin ciclos (cada componente es un árbol).
+        # Un árbol es un bosque de una sola componente.
+        result = not self._has_cycles()
+        print(f"is_forest: {result}")
+        return result
