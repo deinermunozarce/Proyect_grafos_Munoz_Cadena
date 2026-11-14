@@ -75,33 +75,27 @@ class Undirected_graph:
     # ------------------------ PUNTO 6 ------------------------
 
     def is_connected(self):
-        # CORRECCIÓN: antes se llamaba "related" y no imprimía
         result = self._connected()
-        print(f"is_connected: {result}")
+        print(f"es_conexo: {result}")
         return result
 
     # ------------------------ PUNTO 7 ------------------------
 
     def has_cycles(self):
-        # CORRECCIÓN: antes se llamaba "tiene_ciclos" y no imprimía
         result = self._has_cycles()
-        print(f"has_cycles: {result}")
+        print(f"tiene_ciclos: {result}")
         return result
 
     # ------------------------ PUNTO 8 ------------------------
 
     def is_tree(self):
-        # Árbol = conexo + sin ciclos.
-        # Se exige al menos un vértice: por convención el grafo vacío no es un árbol.
         result = len(self.vertexs) > 0 and self._connected() and not self._has_cycles()
-        print(f"is_tree: {result}")
+        print(f"es_arbol: {result}")
         return result
 
     # ------------------------ PUNTO 9 ------------------------
 
     def is_forest(self):
-        # Bosque = sin ciclos (cada componente es un árbol).
-        # Un árbol es un bosque de una sola componente.
         result = not self._has_cycles()
-        print(f"is_forest: {result}")
+        print(f"es_bosque: {result}")
         return result
