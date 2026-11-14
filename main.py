@@ -8,7 +8,7 @@ failures = []   # aquí se guardan las pruebas fallidas (no se imprime nada si p
 
 
 def silent(function):
-    """Ejecuta una función ocultando lo que imprime (para que las pruebas no ensucien la salida)."""
+    
     with redirect_stdout(io.StringIO()):
         return function()
 
@@ -136,7 +136,7 @@ def test_point_9():
 
 
 def demo():
-    """Lo único que se imprime de verdad: el formato pedido por el enunciado."""
+
     for file_name in ["datos_grafo.txt", "arbol.txt", "bosque.txt"]:
         print(f"--- {file_name} ---")
         g = load_graph_from_file(file_name, Undirected_graph())
