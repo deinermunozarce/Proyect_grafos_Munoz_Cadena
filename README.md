@@ -10,8 +10,6 @@ Lista de adyacencia con objetos (grafo no dirigido)
 
 Usamos esta forma porque venimos de Programacion orientada a objetos en lenguaje de C++ y ya habiamos aprendido a crear clases y objetos, así que hicimos una clase Vertex, una Edge y una Undirected_graph. Cada vértice guarda la lista de sus vecinos, es algo como parecido a los punteros, por lo que se nos hizo más fácil de entender. También gasta menos memoria, porque solo guarda las conexiones que sí existen y no toda una tabla llena de espacios vacíos. Además nos parecio como mas práctica para recorrer el grafo y para contar las aristas que necesitamos al detectar ciclos.
 
-
-
 Matriz de adyacencia (grafo dirigido con pesos)
 
 Usamos la matriz porque era un tema que ya habiamos mirado en Progrmacion Imperativa en python y es parecida a los arreglos de dos dimensiones que vimos en C++, y se adapta bien a un grafo dirigido: matrix[i][j] es la aristas de i a j, y matrix[j][i] es otro distinto, tambien es como mas rapida para consultar por ejemplo para saber si existe un arista o cuánto pesa, vamos directo sin recorrer listas ni buscar.
