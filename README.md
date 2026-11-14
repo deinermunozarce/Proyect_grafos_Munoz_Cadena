@@ -1,6 +1,6 @@
 # Proyect_grafos
 
-Importante: Para ejecutarlo, escribir uv run python main.py ruta/al/archivo.txt (o sin la ruta, y el programa la pide); el archivo debe tener una arista por línea con el formato source,target,weight
+Importante: Para ejecutarlo, escribir uv run python main.py ruta/al/archivo.txt
 
 Implementamos dos formas para hacer los grafos:
 1.Lista de adyacencia con objetos 
