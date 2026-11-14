@@ -154,11 +154,8 @@ def main():
 
     demo()
 
-    print()
-    if not failures:
-        print("Pruebas (puntos 3 a 9): TODAS PASARON")
-    else:
-        print("Pruebas fallidas:")
+    if failures:
+        print("\nPruebas fallidas:")
         for failure in failures:
             print("  -", failure)
 
