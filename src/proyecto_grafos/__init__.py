@@ -1,3 +1,4 @@
+from proyecto_grafos.graph_direct import Direct_Graph
 #---------------------PUNTO 3----------------------------------------
 class Vertex:
     def __init__(self, name):
@@ -12,7 +13,7 @@ class Edge:
         self.weight = weight
 
 
-class GrafoNoDirigido:
+class Undirected_graph:
     def __init__(self):
         self.vertexs = {}     # nombre -> objeto Vertice
         self.edges = []      # lista de objetos arista
@@ -89,34 +90,10 @@ class GrafoNoDirigido:
             # Sin ciclos solo puede haber V - C aristas
             return E > V - C      
             
-#-------------------------PUNTO 4----------------------------------------------------
-
-class GrafoDirigido:
-    def __init__(self):
-        self.vertexs = {}     # nombre -> objeto Vertice
-        self.Edges = []      # lista de objetos arista
-
-    def add_vertex(self, name):
-        if name not in self.vertexs:
-            self.vertexs[name] = Vertex(name)
-        return self.vertexs[name]
-
-    def add_edge(self, source, target, weight=1):
-        a = self.add_vertex(source)
-        b = self.add_vertex(target)
-
-        self.Edges.append(Edge(a, b, weight))
-
-        # Dirigido (source -> target)
-        a.partners.append(b)
-
-    def show(self):
-        for name, Vertex in self.vertexs.items():
-            nombres_partners = [v.name for v in Vertex.partners]
-            print(f"{name} -> {nombres_partners}")
-            
+        
 #--------------------PUNTO 5------------------------------------------------------------
 
+"""
 def load_grafo(ruta, grafo):
     archivo = open(ruta, "r")
     text = archivo.read()          # lee todo como texto
@@ -144,3 +121,4 @@ def load_grafo(ruta, grafo):
         weight = int(parts[2])
 
         grafo.add_edge(source, target, weight)
+"""
